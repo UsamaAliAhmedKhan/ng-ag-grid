@@ -1,10 +1,4 @@
 <ag-grid-angular
-   [rowData]="rowData"
-   [columnDefs]="colDefs" 
-   class="ag-theme-quartz"
-   style="height: 500px;"
-   (gridReady)="onGridReady($event)"
-   [defaultColDef]="defaultColDef"
-   [pagination]="true"
-   [rowSelection]="'single'"
-   [rowGroupPanelShow]="'always'"/>
+   class="ag-theme-quartz-dark"
+   style="height: 700px;"
+   [gridOptions]="gridOptions" />

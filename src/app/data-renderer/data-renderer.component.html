@@ -1,0 +1,4 @@
+<select (change)="onDateFormatChange($event)">
+    <option *ngFor="let format of dateFormats" [value]="format">{{ format }}</option>
+  </select>
+  <span>{{ formattedDate }}</span>
