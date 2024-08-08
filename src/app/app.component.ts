@@ -1,12 +1,13 @@
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef } from 'ag-grid-community'; 
+import { ColDef, GridOptions, GridReadyEvent } from 'ag-grid-community'; 
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
-import 'ag-grid-enterprise'
-import { GridReadyEvent } from 'ag-grid-enterprise';
+import 'ag-grid-enterprise';
+import { DataRendererComponent } from './data-renderer/data-renderer.component';
 
 interface IRow {
   mission: string;
@@ -18,44 +19,48 @@ interface IRow {
   price: number;
   successful: boolean;
 }
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, AgGridAngular, HttpClientModule],
+  imports: [CommonModule, RouterOutlet, AgGridAngular, HttpClientModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css']  
 })
-
 export class AppComponent {
   title = 'ng-ag-grid';
+  gridOptions: GridOptions = {
+    
+    pagination: true,
+    rowSelection: 'multiple',
+    rowGroupPanelShow: 'always',
+    onGridReady: this.onGridReady.bind(this),
+    defaultColDef: {
+      filter: true,
+      editable: true,
+      sortable: true,
+      enableRowGroup: true,
+      width: 230,
+    },
+    columnDefs: [
+      { field: 'mission', checkboxSelection: true },
+      { field: 'company' },
+      { field: 'location' },
+      { field: 'date', cellRenderer: DataRendererComponent, },
+      { field: 'price' },
+      { field: 'successful' },
+      { field: 'rocket' },
+    ]
+  };
 
-  defaultColDef: ColDef = {
-    filter: true,
-    editable: true,
-    sortable: true,
-    enableRowGroup: true
+  constructor(private http: HttpClient) {}
+
+  onGridReady(params: GridReadyEvent) {
+    this.http
+    .get<IRow[]>('https://www.ag-grid.com/example-assets/space-mission-data.json')
+    .subscribe((data) => {
+      params.api.applyTransaction({ add: data });
+      params.api.hideOverlay();
+    });
   }
-
-  // Row Data: The data to be displayed.
- rowData: IRow[] = [];
-
- // Column Definitions: Defines the columns to be displayed.
- colDefs: ColDef[] = [
-  { field: 'mission',
-    checkboxSelection: true
-   },
-  { field: 'company' },
-  { field: 'location' },
-  { field: 'date' },
-  { field: 'price' },
-  { field: 'successful' },
-  { field: 'rocket' },
- ];
-
- constructor(private http: HttpClient) {}
-    onGridReady(params: GridReadyEvent) {
-        this.http
-            .get<any[]>('https://www.ag-grid.com/example-assets/space-mission-data.json')
-            .subscribe((data) => (this.rowData = data));
-    }
 }
